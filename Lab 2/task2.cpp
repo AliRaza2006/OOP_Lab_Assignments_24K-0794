@@ -3,13 +3,11 @@
 using namespace std;
 void* arrOp(void* arr,int size)
 {
-    int* c=new int[size];
-    for(int i=0;i<size;i++)
-    {
-    c[i]=((int*)arr)[i]+i;
+    int* sum = new int(0);
+    for (int i = 0; i < size; i++) {
+        *sum += ((int*)arr)[i];
     }
-    void* newArr=c;
-    return newArr;
+    return (void*)sum;
 }
 int main(int argc,char* argv[])
 {
@@ -24,10 +22,6 @@ int main(int argc,char* argv[])
         arr[i]=atoi(argv[i+1]);
     }
    void* newArr=arrOp((void*) arr,argc-1);
-   for(int i=0;i<argc-1;i++)
-   {
-    cout<<"Element "<<i+1<<": "<<((int*)newArr)[i]<<endl;
-   }
+   cout<<"Sum: "<<*(int*)newArr;
     delete[] arr;
-    delete[] (int*)newArr;
 }
