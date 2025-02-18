@@ -1,138 +1,235 @@
-#include <iostream>
-#include <string>
+#include<iostream>
+#include<string>
+#include<cstring>
+#include<vector>
 using namespace std;
-
-class MenuItem {
-  public:
-    string name;
+class MenuItem
+{
+    string itemname;
     string type;
     double price;
-
-    MenuItem(string n, string t, double p) {
-        name = n;
-        type = t;
-        price = p;
+    public:
+    string GetItemName()
+    {
+        return itemname;
+    }
+    double GetPrice()
+    {
+        return price;
+    }
+    string GetType()
+    {
+        return type;
+    }
+    MenuItem(string name,string type,double price)
+    {
+        itemname=name;
+        this->price=price;
+        this->type=type;
     }
 };
-
-class CoffeeShop {
-  private:
+class CoffeeShop
+{
     string name;
-    MenuItem* menu;
-    string orders[10];
-    int orderCount;
-    int menuSize;
-
-  public:
-    CoffeeShop(string shopName, MenuItem menuItems[], int mSize) {
-        name = shopName;
-        menu = menuItems;
-        menuSize = mSize;
-        orderCount = 0;
+    vector<MenuItem> items;
+    vector<string> orders;
+    public:
+    CoffeeShop(string shopName) : name(shopName){
+        items.push_back(MenuItem("Espresso", "drink", 2.50));
+        items.push_back(MenuItem("Cappuccino", "drink", 3.00));
+        items.push_back(MenuItem("Muffin", "food", 2.00));
+        items.push_back(MenuItem("Croissant", "food", 2.50));
+        items.push_back(MenuItem("Latte", "drink", 3.50));
     }
-
-    void addOrder(string itemName) {
-        bool found = false;
-        for (int i = 0; i < menuSize; i++) {
-            if (menu[i].name == itemName) {
-                orders[orderCount++] = itemName;
-                found = true;
-                break;
+    void add_Order(string order)
+    {
+        bool found=false;
+        for(int i=0;i<items.size();i++)
+        {
+            if (strcasecmp(order.c_str(), items[i].GetItemName().c_str()) == 0)
+            {
+                orders.push_back(order);
+                cout<<order<<" added succesfully!"<<endl;
+                found=true;
+                break;   
             }
         }
-        if (!found) {
-            cout << "This item is currently unavailable" << endl;
+        if(!found)
+        cout<<"This item is currently unavailable"<<endl;      
+    }
+    void fulfill_order()
+    {
+        if(!orders.empty())
+        {
+            string item=orders.front();
+            orders.erase(orders.begin());
+            cout<<"The "+item+" is ready!"<<endl;
+        }
+        else
+        {
+            cout<<"All orders have been fulfilled"<<endl;
         }
     }
-
-    string fulfillOrder() {
-        if (orderCount > 0) {
-            string item = orders[0];
-            for (int i = 0; i < orderCount - 1; i++) {
-                orders[i] = orders[i + 1];
-            }
-            orderCount--;
-            return "The " + item + " is ready";
-        }
-        return "All orders have been fulfilled";
+    vector<string> List_Items()
+    {
+        return orders;   
     }
-
-    void listOrders() {
-        if (orderCount == 0) {
-            cout << "No orders yet" << endl;
-        } else {
-            for (int i = 0; i < orderCount; i++) {
-                cout << orders[i] << endl;
-            }
-        }
-    }
-
-    double dueAmount() {
-        double total = 0;
-        for (int i = 0; i < orderCount; i++) {
-            for (int j = 0; j < menuSize; j++) {
-                if (menu[j].name == orders[i]) {
-                    total += menu[j].price;
-                    break;
+    double dueAmount()
+    {
+        double due=0;
+        if(!orders.empty())
+        {
+            for(int i=0;i<orders.size();i++)
+            {
+                for(int j=0;j<items.size();j++)
+                {
+                    if(strcasecmp(orders[i].c_str(),items[j].GetItemName().c_str())==0)
+                    {
+                        due+=items[j].GetPrice();
+                    }
                 }
             }
         }
-        return total;
+        return due;
     }
-
-    string cheapestItem() {
-        double minPrice = menu[0].price;
-        string itemName = menu[0].name;
-        for (int i = 1; i < menuSize; i++) {
-            if (menu[i].price < minPrice) {
-                minPrice = menu[i].price;
-                itemName = menu[i].name;
+    string cheapestItem()
+    {
+        double min=items[0].GetPrice();
+        int index;
+        for(int j=1;j<items.size();j++)
+        {
+            if(items[j].GetPrice()<min)
+            {
+                min=items[j].GetPrice();
+                index=j;
             }
         }
-        return itemName;
+        return items[index].GetItemName();
     }
-
-    void drinksOnly() {
-        for (int i = 0; i < menuSize; i++) {
-            if (menu[i].type == "drink") {
-                cout << menu[i].name << endl;
+    vector<string> drinksOnly()
+    {
+        vector<string> drinks;
+        for (int i = 0; i < items.size(); i++)
+        {
+            if (items[i].GetType() == "drink")
+            {
+                drinks.push_back(items[i].GetItemName());
             }
         }
+        return drinks;
     }
-
-    void foodOnly() {
-        for (int i = 0; i < menuSize; i++) {
-            if (menu[i].type == "food") {
-                cout << menu[i].name << endl;
+    vector<string> foodOnly()
+    {
+        vector<string> food;
+        for (int i = 0; i < items.size(); i++)
+        {
+            if (items[i].GetType() == "food")
+            {
+                food.push_back(items[i].GetItemName());
             }
         }
+        return food;
     }
 };
+int main()
+{
+    CoffeeShop shop("Cafe Java");
+    int choice;
 
-int main() {
-    MenuItem menu[] = {
-        MenuItem("Coffee", "drink", 2.5),
-        MenuItem("Tea", "drink", 1.5),
-        MenuItem("Cake", "food", 3.0),
-        MenuItem("Sandwich", "food", 4.0),
-        MenuItem("Juice", "drink", 2.0)
-    };
+    while (true)
+    {
+        cout << "\nCoffee Shop Menu:" << endl;
+        cout << "1. Add an Order" << endl;
+        cout << "2. Fulfill an Order" << endl;
+        cout << "3. List All Orders" << endl;
+        cout << "4. Check Due Amount" << endl;
+        cout << "5. Find Cheapest Item" << endl;
+        cout << "6. Show Drinks Only" << endl;
+        cout << "7. Show Food Only" << endl;
+        cout << "8. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    CoffeeShop shop("Best Coffee", menu, 5);
-    shop.addOrder("Coffee");
-    shop.addOrder("Sandwich");
-    shop.addOrder("Juice");
-    shop.addOrder("Burger");
+        cin.ignore();
 
-    cout << shop.fulfillOrder() << endl;
-    cout << shop.fulfillOrder() << endl;
-    shop.listOrders();
-    cout << "Total due: " << shop.dueAmount() << endl;
-    cout << "Cheapest item: " << shop.cheapestItem() << endl;
-    cout << "Drinks menu:" << endl;
-    shop.drinksOnly();
-    cout << "Food menu:" << endl;
-    shop.foodOnly();
+        string order;
+
+        switch (choice)
+        {
+        case 1:
+            cout << "Enter the item to order: ";
+            getline(cin, order);
+            shop.add_Order(order);
+            break;
+
+        case 2:
+            shop.fulfill_order();
+            break;
+
+        case 3:
+            {
+                vector<string> orders = shop.List_Items();
+                if (orders.empty())
+                    cout << "No orders placed yet." << endl;
+                else
+                {
+                    cout << "Current Orders: " << endl;
+                    for (const string &o : orders)
+                    {
+                        cout << o << endl;
+                    }
+                }
+            }
+            break;
+
+        case 4:
+            cout << "Total Due Amount: $" << shop.dueAmount() << endl;
+            break;
+
+        case 5:
+            cout << "Cheapest Item: " << shop.cheapestItem() << endl;
+            break;
+
+        case 6:
+            {
+                vector<string> drinks = shop.drinksOnly();
+                if (drinks.empty())
+                    cout << "No drinks available." << endl;
+                else
+                {
+                    cout << "Drinks available: " << endl;
+                    for (const string &drink : drinks)
+                    {
+                        cout << drink << endl;
+                    }
+                }
+            }
+            break;
+
+        case 7:
+            {
+                vector<string> food = shop.foodOnly();
+                if (food.empty())
+                    cout << "No food available." << endl;
+                else
+                {
+                    cout << "Food available: " << endl;
+                    for (const string &item : food)
+                    {
+                        cout << item << endl;
+                    }
+                }
+            }
+            break;
+
+        case 8:
+            cout << "Exiting the system. Goodbye!" << endl;
+            return 0;
+
+        default:
+            cout << "Invalid choice, please try again!" << endl;
+        }
+    }
 
     return 0;
 }
